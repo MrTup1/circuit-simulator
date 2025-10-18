@@ -48,10 +48,13 @@ class Fourier: public Graph {
     private:
         std::vector<float> a_coeffs;
         std::vector<float> b_coeffs;
+        std::vector<float> y_points;
         float a0 = 0.0f;
         int num_harmonics;
         float y_total;
         float angle;
+        float y_min = INFINITY;
+        float y_max = -INFINITY;
     
     public:
         void getUserInput() {
@@ -82,11 +85,20 @@ class Fourier: public Graph {
                     y_total += a_coeffs[n-1] * std::cos(angle);
                     y_total += b_coeffs[n-1] * std::sin(angle);
                 }
-                space = plotPoint(y_total);
+                y_points.push_back(y_total);
+                if(y_total < y_min) y_min = y_total;
+                if(y_total > y_max) y_max = y_total;
+
+            }
+
+            for (x = 0; x < 1000; ++x) {
+                float normalised_y = (y_points[x] - y_min) / (y_max - y_min); //normalise the y values
+
+                space = plotPoint(normalised_y);
                 if (x % SPACING == 0) {
-                    printf("x = %.10lu y = %.3f|    %*c*\n", x, y_total, space, "");
+                    printf("x = %.10lu y = %.3f|    %*c*\n", x, y_points[x], space, "");
                 } else {
-                    printf("x = %.10lu y = %.3f|--- %*c*\n", x, y_total, space, ""); //Indicator for every 10 lines
+                    printf("x = %.10lu y = %.3f|--- %*c*\n", x, y_points[x], space, ""); //Indicator for every 10 lines
                 }
             }
 
