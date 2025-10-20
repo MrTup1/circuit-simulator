@@ -3,7 +3,7 @@
 #include <vector>
 #include <iterator>
 
-class Graph {
+class Graph { //Base sin function plotter from C2
     protected: // Allow child classes to access its attributes
         int width;
         int space;
@@ -38,22 +38,25 @@ class Graph {
                 } else {
                     printf("x = %.10lu y = %.3f|--- %*c*\n", x, y, space, ""); //Indicator for every 10 lines
                 }
+
+
+                
             }
             return 1;
         }
         
 };
 
-class Fourier: public Graph {
+class Fourier: public Graph { //Fourier Class
     private:
-        std::vector<float> a_coeffs;
-        std::vector<float> b_coeffs;
-        std::vector<float> y_points;
+        std::vector<float> a_coeffs; //cos coefficients
+        std::vector<float> b_coeffs; //sin coefficients
+        std::vector<float> y_points; //array of points to be plotted
         float a0 = 0.0f;
         int num_harmonics;
-        float y_total;
+        float y_total; //point to be plotted
         float angle;
-        float y_min = INFINITY;
+        float y_min = INFINITY; //remove garbage values
         float y_max = -INFINITY;
     
     public:
@@ -75,6 +78,9 @@ class Fourier: public Graph {
         }
 
         int plotGraph() override {
+            const char* YELLOW = "\x1B[33m";
+            const char* RESET = "\x1B[0m"; 
+                
             const float L = 100.0f; 
 
             for (x = 0; x< 1000; ++x) {
@@ -86,7 +92,7 @@ class Fourier: public Graph {
                     y_total += b_coeffs[n-1] * std::sin(angle);
                 }
                 y_points.push_back(y_total);
-                if(y_total < y_min) y_min = y_total;
+                if(y_total < y_min) y_min = y_total; //Check for the highest and lowest points in the fourier graph
                 if(y_total > y_max) y_max = y_total;
 
             }
@@ -96,11 +102,12 @@ class Fourier: public Graph {
 
                 space = plotPoint(normalised_y);
                 if (x % SPACING == 0) {
-                    printf("x = %.10lu y = %.3f|    %*c*\n", x, y_points[x], space, "");
+                    // This is the modified line
+                    printf("x = %.10lu y = %.3f| %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET); //Yellow
                 } else {
-                    printf("x = %.10lu y = %.3f|--- %*c*\n", x, y_points[x], space, ""); //Indicator for every 10 lines
+                    printf("x = %.10lu y = %.3f|--- %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET);
                 }
-            }
+                    }
 
             return 1;
         }
