@@ -86,8 +86,8 @@ class Logic {
             for (int column = 0; column < num_outputs; ++column) {
                 std::string current_expression = "";
                 for(int row = 0; row < or_array.size(); ++row) {
-                    if (or_array[row][column]) {
-                        if (!current_expression.empty()) {
+                    if (or_array[row][column] && !and_outputs[row].empty()) {
+                        if (!current_expression.empty() ) {
                             current_expression += " + ";
                         }
                         current_expression += and_outputs[row];
