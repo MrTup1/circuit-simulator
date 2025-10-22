@@ -1,0 +1,9 @@
+#pragma once
+
+#include <vector>
+
+using Vector = std::vector<double>; //type alias
+
+Vector create_vector(std::size_t size);
+std::vector<double> load_vec_from_file(const char* filename);
+void print_vec(const std::vector<double>& vec);
