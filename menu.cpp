@@ -1,6 +1,6 @@
 #include <iostream>
-#include <menu.hpp>
-#include <circuit.hpp>
+#include "menu.hpp"
+#include "circuit.hpp"
 
 
 void display_welcome() {
@@ -24,6 +24,21 @@ void run_fourier();
 void run_logic() {
     std::string and_path = get_filename("AND");
     std::string or_path = get_filename("OR");
+    Logic logicClass;
+    
+    // Load the files
+    bool and_loaded = logicClass.load_board_from_file(and_path, 'a');
+    bool or_loaded = logicClass.load_board_from_file(or_path, 'o');
+
+    // Only proceed if files were loaded successfully
+    if (and_loaded && or_loaded) {
+        // --- YOU WERE MISSING THESE LINES ---
+        logicClass.generate_and();
+        logicClass.generate_or();
+        logicClass.print_outputs();
+    } else {
+        std::cout << "Error loading one or more files. Cannot run logic." << std::endl;
+    }
 };
 
 int main(int argc, char* argv[]) {
@@ -39,6 +54,9 @@ int main(int argc, char* argv[]) {
             switch (c) {
                 case 'c':  // circuit simulator
                     run_circuit_simulator();
+                    break;
+                case 'l':
+                    run_logic();
                     break;
             }
         }

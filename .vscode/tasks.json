@@ -10,7 +10,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "-I${workspaceFolder}/include" // <-- ADD THIS LINE
+                "-I${workspaceFolder}/include"
             ],
             "options": {
                 "cwd": "${fileDirname}"
