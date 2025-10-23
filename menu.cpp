@@ -19,7 +19,9 @@ std::string get_filename(std::string file_type) {
 
 
 void run_circuit_simulator(){
-    std::string f = get_filename("circuit simulator");
+    std::string filename = get_filename("circuit");
+    Circuit circuit(filename.data());
+    circuit.analyse();
 };
 
 void run_fourier(){
