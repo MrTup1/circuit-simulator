@@ -102,11 +102,11 @@ void Logic::print_outputs() {
 }
 
 
-int main() {
+/*int main() {
     Logic logicClass;
     logicClass.load_board_from_file("and.txt", 'a');
     logicClass.load_board_from_file("or.txt", 'o');
     logicClass.generate_and();
     logicClass.generate_or();
     logicClass.print_outputs();
-}
+}*/

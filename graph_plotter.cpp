@@ -3,120 +3,97 @@
 #include <vector>
 #include <iterator>
 
-class Graph { //Base sin function plotter from C2
-    protected: // Allow child classes to access its attributes
-        int width;
-        int space;
-        float y;    
-        long unsigned x;
-        const double PI = 3.14159;
-        const int FREQUENCY = 5;
-        const int SPACING = 10;
+#include "graph_plotter.hpp"
 
-    public:
-        Graph() { //Constructor 
-            width = 0;
-            space = 0;
-            x = 0;
+Graph::Graph() { //Constructor 
+    width = 0;
+    space = 0;
+    x = 0;
+}
+
+int Graph::plotPoint(float y) { //Plots a single point based on y position given
+    width = 60;
+    space = 0;
+    for (int i = 0; i < y *width; i++) {
+        space += 1;
+    }
+    return space;
+}
+
+int Graph::plotGraph() {
+    for (x = 0; x<1000; x++) {
+        y = (sin(FREQUENCY * x * PI / 180))/2 + 0.5; //Divide by 2 to squish down to 0.5, then + 0.5 to move it to 0-1
+        space = plotPoint(y);
+        if (x % SPACING == 0) {
+            printf("x = %.10lu y = %.3f|    %*c*\n", x, y, space, "");
+        } else {
+            printf("x = %.10lu y = %.3f|--- %*c*\n", x, y, space, ""); //Indicator for every 10 lines
         }
+    }
+    return 1;
+}
         
-        int plotPoint(float y) { //Plots a single point based on y position given
-            width = 60;
-            space = 0;
-            for (int i = 0; i < y *width; i++) {
-                space += 1;
-            }
-            return space;
-        }
-
-        virtual int plotGraph() {
-            for (x = 0; x<1000; x++) {
-                y = (sin(FREQUENCY * x * PI / 180))/2 + 0.5; //Divide by 2 to squish down to 0.5, then + 0.5 to move it to 0-1
-                space = plotPoint(y);
-                if (x % SPACING == 0) {
-                    printf("x = %.10lu y = %.3f|    %*c*\n", x, y, space, "");
-                } else {
-                    printf("x = %.10lu y = %.3f|--- %*c*\n", x, y, space, ""); //Indicator for every 10 lines
-                }
 
 
-                
-            }
-            return 1;
-        }
-        
-};
 
-class Fourier: public Graph { //Fourier Class
-    private:
-        std::vector<float> a_coeffs; //cos coefficients
-        std::vector<float> b_coeffs; //sin coefficients
-        std::vector<float> y_points; //array of points to be plotted
-        float a0 = 0.0f;
-        int num_harmonics;
-        float y_total; //point to be plotted
-        float angle;
-        float y_min = INFINITY; //remove garbage values
-        float y_max = -INFINITY;
+
+void Fourier::getUserInput() {
+    std::cout << "Enter the DC offset (a0): ";
+    std::cin >> a0;
+
+    std::cout << "How many harmonics would you like to enter (up to 6)? ";
+    std::cin >> num_harmonics;
+
+    for (int i = 0; i < num_harmonics; ++i) {
+        float a, b;
+        std::cout << "Enter coeffs for harmonic " << i + 1 << " (an, bn): ";
+        std::cin >> a >> b;
+        a_coeffs.push_back(a);
+        b_coeffs.push_back(b);
+    }
     
-    public:
-        void getUserInput() {
-            std::cout << "Enter the DC offset (a0): ";
-            std::cin >> a0;
+}
 
-            std::cout << "How many harmonics would you like to enter (up to 6)? ";
-            std::cin >> num_harmonics;
+int Fourier::plotGraph()  {
+    const char* YELLOW = "\x1B[33m";
+    const char* RESET = "\x1B[0m"; 
+        
+    const float L = 100.0f; 
 
-            for (int i = 0; i < num_harmonics; ++i) {
-                float a, b;
-                std::cout << "Enter coeffs for harmonic " << i + 1 << " (an, bn): ";
-                std::cin >> a >> b;
-                a_coeffs.push_back(a);
-                b_coeffs.push_back(b);
-            }
-            
+    for (x = 0; x< 1000; ++x) {
+        y_total = 0; //reset y variable
+        y_total += a0 / 2 ;
+        for (int n = 1; n <= num_harmonics; ++n) { //a_coeffs summation and b
+            float angle = (n * PI * x) / L;
+            y_total += a_coeffs[n-1] * std::cos(angle);
+            y_total += b_coeffs[n-1] * std::sin(angle);
         }
+        y_points.push_back(y_total);
+        if(y_total < y_min) y_min = y_total; //Check for the highest and lowest points in the fourier graph
+        if(y_total > y_max) y_max = y_total;
 
-        int plotGraph() override {
-            const char* YELLOW = "\x1B[33m";
-            const char* RESET = "\x1B[0m"; 
-                
-            const float L = 100.0f; 
+    }
 
-            for (x = 0; x< 1000; ++x) {
-                y_total = 0; //reset y variable
-                y_total += a0 / 2 ;
-                for (int n = 1; n <= num_harmonics; ++n) { //a_coeffs summation and b
-                    float angle = (n * PI * x) / L;
-                    y_total += a_coeffs[n-1] * std::cos(angle);
-                    y_total += b_coeffs[n-1] * std::sin(angle);
-                }
-                y_points.push_back(y_total);
-                if(y_total < y_min) y_min = y_total; //Check for the highest and lowest points in the fourier graph
-                if(y_total > y_max) y_max = y_total;
+    for (x = 0; x < 1000; ++x) {
+        float normalised_y = (y_points[x] - y_min) / (y_max - y_min); //normalise the y values
 
+        space = plotPoint(normalised_y);
+        if (x % SPACING == 0) {
+            // This is the modified line
+            printf("x = %.10lu y = %.3f| %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET); //Yellow
+        } else {
+            printf("x = %.10lu y = %.3f|--- %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET);
+        }
             }
 
-            for (x = 0; x < 1000; ++x) {
-                float normalised_y = (y_points[x] - y_min) / (y_max - y_min); //normalise the y values
+    return 1;
+}
 
-                space = plotPoint(normalised_y);
-                if (x % SPACING == 0) {
-                    // This is the modified line
-                    printf("x = %.10lu y = %.3f| %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET); //Yellow
-                } else {
-                    printf("x = %.10lu y = %.3f|--- %*c%s*%s\n", x, y_points[x], space, "", YELLOW, RESET);
-                }
-                    }
 
-            return 1;
-        }
-
-};
-
+/*
 int main() {
     Fourier graph;
     graph.getUserInput();
     graph.plotGraph();
     return 0;
-}
+}*/
