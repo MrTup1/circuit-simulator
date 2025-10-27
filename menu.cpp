@@ -24,14 +24,15 @@ void run_circuit_simulator(){
     circuit.analyse();
 };
 
-void run_fourier(){
+bool run_fourier(){
     Fourier graph;
-    graph.getUserInput();
+    if (!graph.getUserInput()) {return false;}
     graph.plotGraph();
-
-    // ADD THESE TWO LINES to clear the leftover newline from getUserInput() leaving a newline 
+ 
     std::cout << "\nPress Enter to continue...";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    return true;
 };
 
 
@@ -69,13 +70,18 @@ int main(int argc, char* argv[]) {
                     run_circuit_simulator();
                     break;
                 case 'f':
-                    run_fourier();
-                    break;
+                    if (!run_fourier()) {
+                        // Terminate the program immediately
+                        return 1; 
+                    }
+                    break; // If successful, break out of the switch and loop again
                 case 'l':
                     run_logic();
                     break;
                 case 'q':
                     return 0;
+                default:
+                    std::cout << "Invalid input, choose from available options!" << std::endl;
             }
         }
     }

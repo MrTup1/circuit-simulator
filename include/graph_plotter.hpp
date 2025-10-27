@@ -30,7 +30,7 @@ class Fourier: public Graph {
         float y_max = -INFINITY;
     
     public:
-        void getUserInput();
+        bool getUserInput();
         int plotGraph() override;
 
 

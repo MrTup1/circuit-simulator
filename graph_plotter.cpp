@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <iterator>
-
+#include <sstream>
 #include "graph_plotter.hpp"
 
 Graph::Graph() { //Constructor 
@@ -37,28 +37,49 @@ int Graph::plotGraph() {
 
 
 
-void Fourier::getUserInput() {
+bool Fourier::getUserInput() {
     std::cout << "Enter the DC offset (a0): ";
     std::cin >> a0;
 
     std::cout << "How many harmonics would you like to enter (up to 6)? ";
     std::cin >> num_harmonics;
 
+    // Clear the input buffer of the newline character left by std::cin
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     for (int i = 0; i < num_harmonics; ++i) {
         float a, b;
+
         std::cout << "Enter coeffs for harmonic " << i + 1 << " (an, bn): ";
-        std::cin >> a >> b;
+        
+        std::string line;
+        std::getline(std::cin, line); // Read the entire line of input
+        std::stringstream ss(line);   // Use a stringstream to parse the line
+
+        if (!(ss >> a && ss >> b)) {
+            std::cerr << "\nError: Invalid input. Please enter two numbers separated by a space. If no fourier coefficient for either sin or cos, just enter 0!\n";
+            return false; 
+        }
+        
+
+        std::string remaining_input;
+        if (ss >> remaining_input) {
+            std::cerr << "\nError: Too many values entered. Please enter exactly two numbers.\n";
+            return false; 
+        }
+
         a_coeffs.push_back(a);
         b_coeffs.push_back(b);
     }
     
+    return true; 
 }
 
 int Fourier::plotGraph()  {
     const char* YELLOW = "\x1B[33m";
     const char* RESET = "\x1B[0m"; 
         
-    const float L = 100.0f; 
+    const float L = 10.0f; 
 
     for (x = 0; x< 1000; ++x) {
         y_total = 0; //reset y variable
